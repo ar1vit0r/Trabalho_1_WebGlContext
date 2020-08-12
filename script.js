@@ -130,6 +130,9 @@ function main() {
   webglLessonsUI.setupSlider("#angleX", {value: radToDeg(rotation[0]), slide: updateRotation(0), max: 360});
   webglLessonsUI.setupSlider("#angleY", {value: radToDeg(rotation[1]), slide: updateRotation(1), max: 360});
   webglLessonsUI.setupSlider("#angleZ", {value: radToDeg(rotation[2]), slide: updateRotation(2), max: 360});
+  webglLessonsUI.setupSlider("#angle_X", {value: radToDeg(rotation[0]), slide: updateRotation(0), max: 360});
+  webglLessonsUI.setupSlider("#angle_Y", {value: radToDeg(rotation[1]), slide: updateRotation(1), max: 360});
+  webglLessonsUI.setupSlider("#angle_Z", {value: radToDeg(rotation[2]), slide: updateRotation(2), max: 360});
   webglLessonsUI.setupSlider("#scaleX", {value: scale[0], slide: updateScale(0), min: -5, max: 5, step: 0.01, precision: 2});
   webglLessonsUI.setupSlider("#scaleY", {value: scale[1], slide: updateScale(1), min: -5, max: 5, step: 0.01, precision: 2});
   webglLessonsUI.setupSlider("#scaleZ", {value: scale[2], slide: updateScale(2), min: -5, max: 5, step: 0.01, precision: 2});
@@ -182,9 +185,10 @@ function main() {
 
     // Compute the matrix
     var matrix = m4.projection(gl.canvas.clientWidth, gl.canvas.clientHeight, 400);
-    //if((webglLessonsUI.getContext("#x").slide == true) || webglLessonsUI.getContext("#y").slide == true)
-    matrix = m4.translate(matrix, translation[0], translation[1], translation[2]);
-    //matrix = m4.translate2(matrix, translation[0], translation[1], translation[2]);
+    if(document.getElementById('Bezier').checked) {
+      matrix = m4.translate2(matrix, translation[0], translation[1], translation[2]);
+    }else 
+      matrix = m4.translate(matrix, translation[0], translation[1], translation[2]);
     matrix = m4.xRotate(matrix, rotation[0]);
     matrix = m4.yRotate(matrix, rotation[1]);
     matrix = m4.zRotate(matrix, rotation[2]);
@@ -553,10 +557,10 @@ var m4 = {
   //Fonte : http://wiki.icmc.usp.br/images/1/14/CurvasSuperficiesLivres.pdf
   translation_bezier: function(tx, ty, tz) {
     return [
-       1,  0,  0,  tx,
-      -3,  3,  0,  ty,
-       3, -6,  3,  tz,
-      -1,  3, -3,  1,
+       1,  0,  tz,  tx,
+      -3,  3,  0,   ty,
+       3, -6,  3,    0,
+      -1,  3, -3,    1,
     ];
   },
 

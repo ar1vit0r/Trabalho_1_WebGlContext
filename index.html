@@ -11,18 +11,18 @@
 <div id="uiContainer">
   <div id="ui">
     <div id="Translate">
-      <p title="Translação">Translação    
-        <p title="Linear">Linear
-          <div id="x"></div>
-          <div id="y"></div>
-          <div id="z"></div>
-        </p>
-        <p title="Bezier">Bezier
-          <div id="x_1"></div>
-          <div id="y_1"></div>
-          <div id="z_1"></div>       
-        </p>
-      </p>  
+      <p title="Translação">Translação</p>    
+        <div>
+          <input type="radio" id="Linear" name="op" checked>
+            <label for="Linear">Linear</label>
+          </input>
+          <input type="radio" id="Bezier" name="op">
+            <label for="Bezier">Bezier</label>
+          </input>
+        </div>
+        <div id="x"></div>
+        <div id="y"></div>
+        <div id="z"></div> 
     </div>
     <div id="Angle">
       <p title="Angle">Rotação em torno de um eixo</p>
@@ -32,6 +32,9 @@
     </div>
     <div id="Point">
       <p title="Point">Rotação em torno de um ponto</p>
+      <div id="angle_X"></div>
+      <div id="angle_Y"></div>
+      <div id="angle_Z"></div>
     </div>
     <br \>
     <div id="Scale">
