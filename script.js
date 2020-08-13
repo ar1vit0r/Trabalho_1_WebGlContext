@@ -116,6 +116,7 @@ function main() {
   // to hold the translation,
   var translation = [45, 150, 0];
   var rotation = [degToRad(40), degToRad(25), degToRad(325)];
+  var rotation_point = [degToRad(40), degToRad(25), degToRad(325)];
   var scale = [1, 1, 1];
 
   drawScene();
@@ -130,9 +131,9 @@ function main() {
   webglLessonsUI.setupSlider("#angleX", {value: radToDeg(rotation[0]), slide: updateRotation(0), max: 360});
   webglLessonsUI.setupSlider("#angleY", {value: radToDeg(rotation[1]), slide: updateRotation(1), max: 360});
   webglLessonsUI.setupSlider("#angleZ", {value: radToDeg(rotation[2]), slide: updateRotation(2), max: 360});
-  webglLessonsUI.setupSlider("#angle_X", {value: radToDeg(rotation[0]), slide: updateRotation(0), max: 360});
-  webglLessonsUI.setupSlider("#angle_Y", {value: radToDeg(rotation[1]), slide: updateRotation(1), max: 360});
-  webglLessonsUI.setupSlider("#angle_Z", {value: radToDeg(rotation[2]), slide: updateRotation(2), max: 360});
+  webglLessonsUI.setupSlider("#angle_X", {value: radToDeg(rotation_point[0]), slide: updateRotation(0), max: 360});
+  webglLessonsUI.setupSlider("#angle_Y", {value: radToDeg(rotation_point[1]), slide: updateRotation(1), max: 360});
+  webglLessonsUI.setupSlider("#angle_Z", {value: radToDeg(rotation_point[2]), slide: updateRotation(2), max: 360});
   webglLessonsUI.setupSlider("#scaleX", {value: scale[0], slide: updateScale(0), min: -5, max: 5, step: 0.01, precision: 2});
   webglLessonsUI.setupSlider("#scaleY", {value: scale[1], slide: updateScale(1), min: -5, max: 5, step: 0.01, precision: 2});
   webglLessonsUI.setupSlider("#scaleZ", {value: scale[2], slide: updateScale(2), min: -5, max: 5, step: 0.01, precision: 2});
@@ -189,9 +190,13 @@ function main() {
       matrix = m4.translate2(matrix, translation[0], translation[1], translation[2]);
     }else 
       matrix = m4.translate(matrix, translation[0], translation[1], translation[2]);
-    matrix = m4.xRotate(matrix, rotation[0]);
-    matrix = m4.yRotate(matrix, rotation[1]);
-    matrix = m4.zRotate(matrix, rotation[2]);
+    if(document.getElementById('ponto').checked) {
+      //matrix = m4.point_rotate(matrix, angle, xpoint, ypoint, zpoint);
+    }else {
+      matrix = m4.xRotate(matrix, rotation[0]);
+      matrix = m4.yRotate(matrix, rotation[1]);
+      matrix = m4.zRotate(matrix, rotation[2]);
+      }
     matrix = m4.scale(matrix, scale[0], scale[1], scale[2]);
 
     // Set the matrix.
@@ -597,6 +602,17 @@ var m4 = {
     ];
   },
 
+  point_Rotation: function(angleInRadians) {
+    var c = Math.cos(angleInRadians);
+    var s = Math.sin(angleInRadians);
+    return [
+       c,-s, 0, 0,
+       s, c, 0, 0,
+       0, 0, 1, 0,
+       0, 0, 0, 1,
+    ];
+  },
+
   scaling: function(sx, sy, sz) {
     return [
       sx, 0,  0,  0,
@@ -612,6 +628,13 @@ var m4 = {
 
   translate2: function(m, tx, ty, tz) {
     return m4.multiply(m, m4.translation_bezier(tx, ty, tz));
+  },
+
+  //refer: http://www.lapix.ufsc.br/ensino/computacao-grafica/transformacoes-geometricas-2d-e-coordenadas-homogeneas/#Qual_ponto_arbitrario_escolher
+  point_rotate: function(m, angleInRadians, px, py, pz) {
+    matrix = m4.multiply(m, m4.translation(-px, -py, -pz));
+    matrix = m4.multiply(matrix, m4.point_Rotation(angleInRadians));
+    return m4.multiply(matrix, m4.translation(px, py, pz));
   },
 
   xRotate: function(m, angleInRadians) {
