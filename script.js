@@ -116,7 +116,6 @@ function main() {
   // to hold the translation,
   var translation = [45, 150, 0];
   var rotation = [degToRad(40), degToRad(25), degToRad(325)];
-  var rotation_point = [degToRad(40), degToRad(25), degToRad(325)];
   var scale = [1, 1, 1];
 
   drawScene();
@@ -131,9 +130,6 @@ function main() {
   webglLessonsUI.setupSlider("#angleX", {value: radToDeg(rotation[0]), slide: updateRotation(0), max: 360});
   webglLessonsUI.setupSlider("#angleY", {value: radToDeg(rotation[1]), slide: updateRotation(1), max: 360});
   webglLessonsUI.setupSlider("#angleZ", {value: radToDeg(rotation[2]), slide: updateRotation(2), max: 360});
-  webglLessonsUI.setupSlider("#angle_X", {value: radToDeg(rotation_point[0]), slide: updateRotation(0), max: 360});
-  webglLessonsUI.setupSlider("#angle_Y", {value: radToDeg(rotation_point[1]), slide: updateRotation(1), max: 360});
-  webglLessonsUI.setupSlider("#angle_Z", {value: radToDeg(rotation_point[2]), slide: updateRotation(2), max: 360});
   webglLessonsUI.setupSlider("#scaleX", {value: scale[0], slide: updateScale(0), min: -5, max: 5, step: 0.01, precision: 2});
   webglLessonsUI.setupSlider("#scaleY", {value: scale[1], slide: updateScale(1), min: -5, max: 5, step: 0.01, precision: 2});
   webglLessonsUI.setupSlider("#scaleZ", {value: scale[2], slide: updateScale(2), min: -5, max: 5, step: 0.01, precision: 2});
