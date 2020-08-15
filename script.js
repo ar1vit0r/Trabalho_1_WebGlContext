@@ -49,8 +49,7 @@ function main() {
   }
 
   // Use our boilerplate utils to compile the shaders and link into a program
-  var program = webglUtils.createProgramFromSources(gl,
-      [vertexShaderSource, fragmentShaderSource]);
+  var program = webglUtils.createProgramFromSources(gl,[vertexShaderSource, fragmentShaderSource]);
 
   // look up where the vertex data needs to go.
   var positionAttributeLocation = gl.getAttribLocation(program, "a_position");
@@ -82,8 +81,7 @@ function main() {
   var normalize = false; // don't normalize the data
   var stride = 0;        // 0 = move forward size * sizeof(type) each iteration to get the next position
   var offset = 0;        // start at the beginning of the buffer
-  gl.vertexAttribPointer(
-      positionAttributeLocation, size, type, normalize, stride, offset);
+  gl.vertexAttribPointer(positionAttributeLocation, size, type, normalize, stride, offset);
 
   // create the color buffer, make it the current ARRAY_BUFFER
   // and copy in the color values
@@ -100,9 +98,7 @@ function main() {
   var normalize = true;  // convert from 0-255 to 0.0-1.0
   var stride = 0;        // 0 = move forward size * sizeof(type) each iteration to get the next color
   var offset = 0;        // start at the beginning of the buffer
-  gl.vertexAttribPointer(
-      colorAttributeLocation, size, type, normalize, stride, offset);
-
+  gl.vertexAttribPointer(colorAttributeLocation, size, type, normalize, stride, offset);
 
   function radToDeg(r) {
     return r * 180 / Math.PI;
@@ -117,6 +113,7 @@ function main() {
   var translation = [45, 150, 0];
   var rotation = [degToRad(40), degToRad(25), degToRad(325)];
   var scale = [1, 1, 1];
+  var t = 0;
 
   drawScene();
 
@@ -124,15 +121,20 @@ function main() {
   webglLessonsUI.setupSlider("#x",      {value: translation[0], slide: updatePosition(0), max: gl.canvas.width });
   webglLessonsUI.setupSlider("#y",      {value: translation[1], slide: updatePosition(1), max: gl.canvas.height});
   webglLessonsUI.setupSlider("#z",      {value: translation[2], slide: updatePosition(2), max: gl.canvas.height});
-  webglLessonsUI.setupSlider("#x_1",    {value: translation[0], slide: updatePosition(0), max: gl.canvas.width });
-  webglLessonsUI.setupSlider("#y_1",    {value: translation[1], slide: updatePosition(1), max: gl.canvas.height});
-  webglLessonsUI.setupSlider("#z_1",    {value: translation[2], slide: updatePosition(2), max: gl.canvas.height});
+  webglLessonsUI.setupSlider("#deltaCubic", {value: t, slide: updateBezier(), min: 0, max: 1, step: 0.01});
   webglLessonsUI.setupSlider("#angleX", {value: radToDeg(rotation[0]), slide: updateRotation(0), max: 360});
   webglLessonsUI.setupSlider("#angleY", {value: radToDeg(rotation[1]), slide: updateRotation(1), max: 360});
   webglLessonsUI.setupSlider("#angleZ", {value: radToDeg(rotation[2]), slide: updateRotation(2), max: 360});
   webglLessonsUI.setupSlider("#scaleX", {value: scale[0], slide: updateScale(0), min: -5, max: 5, step: 0.01, precision: 2});
   webglLessonsUI.setupSlider("#scaleY", {value: scale[1], slide: updateScale(1), min: -5, max: 5, step: 0.01, precision: 2});
   webglLessonsUI.setupSlider("#scaleZ", {value: scale[2], slide: updateScale(2), min: -5, max: 5, step: 0.01, precision: 2});
+  
+  function updateBezier() {
+    return function(event, ui) {
+      t = ui.value;
+      drawScene();
+    };
+  }
 
   function updatePosition(index) {
     return function(event, ui) {
@@ -182,17 +184,19 @@ function main() {
 
     // Compute the matrix
     var matrix = m4.projection(gl.canvas.clientWidth, gl.canvas.clientHeight, 400);
+
     if(document.getElementById('Bezier').checked) {
-      matrix = m4.translate2(matrix, translation[0], translation[1], translation[2]);
+      matrix = m4.translate2(matrix, translation[0], translation[1], t); //bezier
     }else 
-      matrix = m4.translate(matrix, translation[0], translation[1], translation[2]);
+      matrix = m4.translate(matrix, translation[0], translation[1], translation[2]); //linear
+
     if(document.getElementById('ponto').checked) {
-      //matrix = m4.point_rotate(matrix, angle, xpoint, ypoint, zpoint);
+      matrix = m4.point_rotate(matrix, angle, xpoint, ypoint, zpoint);
     }else {
       matrix = m4.xRotate(matrix, rotation[0]);
       matrix = m4.yRotate(matrix, rotation[1]);
       matrix = m4.zRotate(matrix, rotation[2]);
-      }
+    }
     matrix = m4.scale(matrix, scale[0], scale[1], scale[2]);
 
     // Set the matrix.
@@ -555,13 +559,15 @@ var m4 = {
     ];
   },
 
-  //Fonte : http://wiki.icmc.usp.br/images/1/14/CurvasSuperficiesLivres.pdf
   translation_bezier: function(tx, ty, tz) {
+    // https://javascript.info/bezier-curve
+    x = (1-tz)*3*translation[0] + 3*(1-t)*tz*tz*(translation[0]+50) + 3*(1-t)*tz*tz*(translation[0]+100) + tz*tz*tz*tx;
+    y = (1-tz)*3*translation[1] + 3*(1-t)*tz*tz*(translation[1]+50) + 3*(1-t)*tz*tz*(translation[1]+100) + tz*tz*tz*ty;
     return [
-       1,  0,  tz,  tx,
-      -3,  3,  0,   ty,
-       3, -6,  3,    0,
-      -1,  3, -3,    1,
+       1,  0,  0,  0,
+       0,  1,  0,  0,
+       0,  0,  1,  0,
+       x,  y,  0,  1,
     ];
   },
 
