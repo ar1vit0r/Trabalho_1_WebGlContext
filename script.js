@@ -198,7 +198,7 @@ function main() {
       matrix = m4.zRotate(matrix, rotation[2]);
     }
     matrix = m4.scale(matrix, scale[0], scale[1], scale[2]);
-
+    
     // Set the matrix.
     gl.uniformMatrix4fv(matrixLocation, false, matrix);
 
@@ -560,9 +560,10 @@ var m4 = {
   },
 
   translation_bezier: function(tx, ty, tz) {
-    // https://javascript.info/bezier-curve
-    x = (1-tz)*3*translation[0] + 3*(1-t)*tz*tz*(translation[0]+50) + 3*(1-t)*tz*tz*(translation[0]+100) + tz*tz*tz*tx;
-    y = (1-tz)*3*translation[1] + 3*(1-t)*tz*tz*(translation[1]+50) + 3*(1-t)*tz*tz*(translation[1]+100) + tz*tz*tz*ty;
+    //https://javascript.info/bezier-curve
+    //https://pomax.github.io/bezierinfo/
+    x = p0x * (1-tz)**3 + (p1x+50) * 3 * (1-t)**2 * tz + (p2x+100) * 3 * (1-t) * tz**2 + tx * tz**3;
+    y = p0y * (1-tz)**3 + (p1y+50) * 3 * (1-t)**2 * tz + (p2y+100) * 3 * (1-t) * tz**2 + ty * tz**3;
     return [
        1,  0,  0,  0,
        0,  1,  0,  0,
