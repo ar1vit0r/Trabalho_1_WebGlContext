@@ -110,8 +110,8 @@ function main() {
 
   // First let's make some variables
   // to hold the translation,
-  var translation = [45, 150, 0];
-  var rotation = [degToRad(40), degToRad(25), degToRad(325)];
+  var translation = [0, 0, 0];
+  var rotation = [degToRad(0), degToRad(0), degToRad(0)];
   var scale = [1, 1, 1];
   var t = 0;
   var begin = [0, 0];
@@ -121,6 +121,10 @@ function main() {
   var targetAngleRadians = 0;
   var targetRadius = 300;
   var fieldOfViewRadians = degToRad(60);
+  var cameraPosition = [0, 1000, 1000];
+  var cameraTarget = [0, -100, 0];
+  var up = [0, 1, 0];
+
 
   drawScene();
 
@@ -137,6 +141,36 @@ function main() {
   webglLessonsUI.setupSlider("#scaleZ", {value: scale[2], slide: updateScale(2), min: -5, max: 5, step: 0.01, precision: 2});
   webglLessonsUI.setupSlider("#targetAngle", {value: radToDeg(targetAngleRadians), slide: updateTargetAngle, min: -360, max: 360});
   webglLessonsUI.setupSlider("#targetHeight", {value: target[1], slide: updateTargetHeight, min: 50, max: 300});
+  webglLessonsUI.setupSlider("#x_Position", {value: cameraPosition[0], slide: updateCameraPosition(0), min: -1000, max: 1000});
+  webglLessonsUI.setupSlider("#y_Position", {value: cameraPosition[1], slide: updateCameraPosition(1), min: -1000, max: 1000});
+  webglLessonsUI.setupSlider("#z_Position", {value: cameraPosition[2], slide: updateCameraPosition(2), min: -1000, max: 1000});
+  webglLessonsUI.setupSlider("#cameraTargetX", {value: cameraTarget[0], slide: updateTargetPosition(0), min: -300, max: 300});
+  webglLessonsUI.setupSlider("#cameraTargetY", {value: cameraTarget[1], slide: updateTargetPosition(1), min: -300, max: 300});
+  webglLessonsUI.setupSlider("#cameraTargetZ", {value: cameraTarget[2], slide: updateTargetPosition(2), min: -300, max: 300});
+  webglLessonsUI.setupSlider("#cameraHeightX", {value: up[0], slide: updateCameraHeight(0), min: -5, max: 5});
+  //webglLessonsUI.setupSlider("#cameraHeightY", {value: up[1], slide: updateCameraHeight(1), min: -5, max: 5});
+  //webglLessonsUI.setupSlider("#cameraHeightZ", {value: up[2], slide: updateCameraHeight(2), min: -5, max: 5});
+
+  function updateCameraHeight(index) {
+    return function(event, ui) {
+      up[index] = ui.value;
+      drawScene();
+    };
+  }
+
+  function updateTargetPosition(index) {
+    return function(event, ui) {
+      cameraTarget[index] = ui.value;
+      drawScene();
+    };
+  }
+
+  function updateCameraPosition(index) {
+    return function(event, ui) {
+      cameraPosition[index] = ui.value;
+      drawScene();
+    };
+  }
 
   function updateTargetAngle(event, ui) {
     targetAngleRadians = degToRad(ui.value);
@@ -207,19 +241,28 @@ function main() {
     // Bind the attribute/buffer set we want.
     gl.bindVertexArray(vao);
 
+    if(document.getElementById('default').checked) {
     // Compute the matrix
     var aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
     var zNear = 1;
     var zFar = 2000;
     var projectionMatrix = m4.perspective(fieldOfViewRadians, aspect, zNear, zFar);
 
-    var cameraTarget = [0, -100, 0];
-    var cameraPosition = [500, 300, 500];
-    var up = [0, 1, 0];
-
     // Compute the camera's matrix using look at.
     var cameraMatrix = m4.lookAt(cameraPosition, cameraTarget, up);
-
+    }else if(document.getElementById('view1').checked){
+      var aspect = ((gl.canvas.clientWidth/2) / (gl.canvas.clientHeight/2));
+      var zNear = 1;
+      var zFar = 1000;
+      var projectionMatrix = m4.perspective(fieldOfViewRadians, aspect, zNear, zFar);
+      var cameraMatrix = m4.lookAt(cameraPosition, cameraTarget, up);
+    }else if(document.getElementById('view2').checked){
+      var aspect = ((gl.canvas.clientWidth/4) / (gl.canvas.clientHeight/4));
+      var zNear = 1;
+      var zFar = 5000;
+      var projectionMatrix = m4.perspective(fieldOfViewRadians, aspect, zNear, zFar);
+      var cameraMatrix = m4.lookAt(cameraPosition, cameraTarget, up);
+    }
     // Make a view matrix from the camera matrix.
     var viewMatrix = m4.inverse(cameraMatrix);
 
