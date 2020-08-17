@@ -68,29 +68,36 @@
         <div id="targetAngle"></div>
         <div id="targetHeight"></div>
       </div>
-      <div id="select">
-        <p title="select">Selecione uma dentre as câmeras:</p>
-        <input type="radio" id="default" name="op3" checked>
-          <label for="default">Padrão</label>
-          <div id="x_Position"></div>
-          <div id="y_Position"></div>
-          <div id="z_Position"></div>
-          <div id="cameraTargetX"></div>
-          <div id="cameraTargetY"></div>
-          <div id="cameraTargetZ"></div>
+      <div id="cameraTransforms">
+          <div id="cameraTranslate">
+            <label for="cameraTranslate">Translação</label>
+            <div id="x_Position"></div>
+            <div id="y_Position"></div>
+            <div id="z_Position"></div>
+          </div>
+          <div id="cameraFocus">
+            <label for="cameraFocus">Foco</label>
+            <div id="cameraTargetX"></div>
+            <div id="cameraTargetY"></div>
+            <div id="cameraTargetZ"></div>
+          </div>
           <div id="cameraHeightX"></div>
           <div id="cameraHeightY"></div>
           <div id="cameraHeightZ"></div>
-        </input>
-        <input type="radio" id="view1" name="op3">
-          <label for="view1">Câmera 1</label>
-        </input>
-        <input type="radio" id="view2" name="op3">
-          <label for="view2">Câmera 2</label>
-        </input>
+        <div id="select">
+          <p title="select">Selecione uma dentre as câmeras:</p>
+          <input type="radio" id="default" name="op3" checked>
+            <label for="default">Padrão</label>
+          </input>
+          <input type="radio" id="view1" name="op3">
+            <label for="view1">Câmera 1</label>
+          </input>
+          <input type="radio" id="view2" name="op3">
+            <label for="view2">Câmera 2</label>
+          </input>
+        </div>
       </div>
     </div>
-  </div>
 </div>
 <!--
 for most samples webgl-utils only provides shader compiling/linking and
