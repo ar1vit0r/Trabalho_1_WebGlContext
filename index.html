@@ -25,6 +25,7 @@
         <div id="y"></div>
         <div id="z"></div> 
     </div>
+    <br \>
     <div id="Angle">
       <p title="Angle">Rotação em torno do:</p>
       <input type="radio" id="eixo" name="op1" checked>
@@ -45,29 +46,47 @@
       <div id="scaleZ"></div>
     </div>
     <br \>
+    <div id="Models">
+      <p title="Models">Modelos</p>
+      <input type="radio" id="Default" name="op2" checked>
+        <label for="Default">Padrão</label>
+      </input>
+      <input type="radio" id="Loaded" name="op2">
+        <label for="Loaded">Carregado</label>
+      </input>
+      <input type="file" id="Models" accept=".js">
+        <label for="Models">Selecione um modelo:</label>
+      </input>
+    </div>
+</div>
+<div id="uiCamera">
+  <div id="ui">
     <div id="Camera">
-      <p title="Camera">Camera</p>
-      <div id="targetAngle"></div>
-      <div id="targetHeight"></div>
-      <div id="x_Position"></div>
-      <div id="y_Position"></div>
-      <div id="z_Position"></div>
-      <div id="cameraTargetX"></div>
-      <div id="cameraTargetY"></div>
-      <div id="cameraTargetZ"></div>
-      <div id="cameraHeightX"></div>
-      <div id="cameraHeightY"></div>
-      <div id="cameraHeightZ"></div>
+      <p title="Camera">Câmera</p>
+      <div id="lookAt">
+        <p title="lookAt">Acompanhar um modelo enquanto ele se move.</p>
+        <div id="targetAngle"></div>
+        <div id="targetHeight"></div>
+      </div>
       <div id="select">
-        <p title="select">Selecione uma dentre as cameras:</p>
-        <input type="radio" id="default" name="op2" checked>
+        <p title="select">Selecione uma dentre as câmeras:</p>
+        <input type="radio" id="default" name="op3" checked>
           <label for="default">Padrão</label>
+          <div id="x_Position"></div>
+          <div id="y_Position"></div>
+          <div id="z_Position"></div>
+          <div id="cameraTargetX"></div>
+          <div id="cameraTargetY"></div>
+          <div id="cameraTargetZ"></div>
+          <div id="cameraHeightX"></div>
+          <div id="cameraHeightY"></div>
+          <div id="cameraHeightZ"></div>
         </input>
-        <input type="radio" id="view1" name="op2">
-          <label for="view1">Camera 1</label>
+        <input type="radio" id="view1" name="op3">
+          <label for="view1">Câmera 1</label>
         </input>
-        <input type="radio" id="view2" name="op2">
-          <label for="view2">Camera 2</label>
+        <input type="radio" id="view2" name="op3">
+          <label for="view2">Câmera 2</label>
         </input>
       </div>
     </div>
@@ -84,12 +103,14 @@ for webgl-utils, m3, m4, and webgl-lessons-ui.
 <script src="https://webgl2fundamentals.org/webgl/resources/webgl-utils.js"></script>
 <script src="https://webgl2fundamentals.org/webgl/resources/webgl-lessons-ui.js"></script>
 <script src="https://webgl2fundamentals.org/webgl/resources/headdata.js"></script>
+
 <!-- 
 <script src="https://webgl2fundamentals.org/webgl/resources/twgl-full.min.js"></script>
 <script src="https://webgl2fundamentals.org/webgl/resources/m4.js"></script>
 -->
 <!-- partial -->
   <script  src="./script.js"></script>
+  <script src="./snake.js"></script>
 
 </body>
 </html>

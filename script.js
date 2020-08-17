@@ -116,7 +116,7 @@ function main() {
   var t = 0;
   var begin = [0, 0];
 
-  //camera
+  //Cameras
   var target = [0, 200, 300];
   var targetAngleRadians = 0;
   var targetRadius = 300;
@@ -147,7 +147,7 @@ function main() {
   webglLessonsUI.setupSlider("#cameraTargetX", {value: cameraTarget[0], slide: updateTargetPosition(0), min: -300, max: 300});
   webglLessonsUI.setupSlider("#cameraTargetY", {value: cameraTarget[1], slide: updateTargetPosition(1), min: -300, max: 300});
   webglLessonsUI.setupSlider("#cameraTargetZ", {value: cameraTarget[2], slide: updateTargetPosition(2), min: -300, max: 300});
-  webglLessonsUI.setupSlider("#cameraHeightX", {value: up[0], slide: updateCameraHeight(0), min: -5, max: 5});
+  //webglLessonsUI.setupSlider("#cameraHeightX", {value: up[0], slide: updateCameraHeight(0), min: -5, max: 5});
   //webglLessonsUI.setupSlider("#cameraHeightY", {value: up[1], slide: updateCameraHeight(1), min: -5, max: 5});
   //webglLessonsUI.setupSlider("#cameraHeightZ", {value: up[2], slide: updateCameraHeight(2), min: -5, max: 5});
 
@@ -241,7 +241,6 @@ function main() {
     // Bind the attribute/buffer set we want.
     gl.bindVertexArray(vao);
 
-    if(document.getElementById('default').checked) {
     // Compute the matrix
     var aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
     var zNear = 1;
@@ -250,25 +249,15 @@ function main() {
 
     // Compute the camera's matrix using look at.
     var cameraMatrix = m4.lookAt(cameraPosition, cameraTarget, up);
-    }else if(document.getElementById('view1').checked){
-      var aspect = ((gl.canvas.clientWidth/2) / (gl.canvas.clientHeight/2));
-      var zNear = 1;
-      var zFar = 1000;
-      var projectionMatrix = m4.perspective(fieldOfViewRadians, aspect, zNear, zFar);
-      var cameraMatrix = m4.lookAt(cameraPosition, cameraTarget, up);
-    }else if(document.getElementById('view2').checked){
-      var aspect = ((gl.canvas.clientWidth/4) / (gl.canvas.clientHeight/4));
-      var zNear = 1;
-      var zFar = 5000;
-      var projectionMatrix = m4.perspective(fieldOfViewRadians, aspect, zNear, zFar);
-      var cameraMatrix = m4.lookAt(cameraPosition, cameraTarget, up);
-    }
+
     // Make a view matrix from the camera matrix.
     var viewMatrix = m4.inverse(cameraMatrix);
 
     // create a viewProjection matrix. This will both apply perspective
     // AND move the world so that the camera is effectively the origin
     var viewProjectionMatrix = m4.multiply(projectionMatrix, viewMatrix);
+
+    console.log(t);
 
     // Draw heads in a grid
     var deep = 5;
@@ -280,10 +269,26 @@ function main() {
         var u = xx / (across - 1);
         var x = (u - .5) * across * 150;
         var matrix = m4.lookAt([x, 0, z], target, up);
+        if(document.getElementById('view1').checked){
+          cameraPosition = [1000, 0, 0];
+          aspect = ((gl.canvas.clientWidth/2) / (gl.canvas.clientHeight/2));
+          zFar = 1000;
+          var cameraMatrix1 = m4.lookAt(cameraPosition, cameraTarget, up);
+          projectionMatrix = m4.perspective(fieldOfViewRadians, aspect, zNear, zFar); 
+          viewMatrix = m4.inverse(cameraMatrix1);
+          viewProjectionMatrix = m4.multiply(projectionMatrix, viewMatrix);
+        }else if(document.getElementById('view2').checked){
+          cameraPosition = [-300, 500, 700];
+          aspect = ((gl.canvas.clientWidth/4) / (gl.canvas.clientHeight/4));
+          zFar = 5000;
+          var cameraMatrix2 = m4.lookAt(cameraPosition, cameraTarget, up);
+          projectionMatrix = m4.perspective(fieldOfViewRadians, aspect, zNear, zFar);
+          viewMatrix = m4.inverse(cameraMatrix2);
+          viewProjectionMatrix = m4.multiply(projectionMatrix, viewMatrix);
+        }
         drawHead(matrix, viewProjectionMatrix, matrixLocation, numVertices);
       }
     }
-
     drawHead(m4.translation(target[0], target[1], target[2]), viewProjectionMatrix, matrixLocation, numVertices);
   }
 
@@ -319,6 +324,10 @@ function drawHead(matrix, viewProjectionMatrix, matrixLocation, numVertices) {
 function setGeometry(gl) {
   var positions = new Float32Array(HeadData.positions);
   var matrix = m4.scale(m4.yRotation(Math.PI), 6, 6, 6);
+  if(document.getElementById('Loaded').checked){
+    positions = new Float32Array(document.oninput("file").positions);
+    matrix = m4.scale(m4.yRotation(Math.PI), 6, 6, 6);
+  }
   for (var ii = 0; ii < positions.length; ii += 3) {
     var vector = m4.transformVector(matrix, [positions[ii + 0], positions[ii + 1], positions[ii + 2], 1]);
     positions[ii + 0] = vector[0];
@@ -334,6 +343,10 @@ function setColors(gl) {
   var normals = HeadData.normals;
   var colors = new Uint8Array(normals.length);
   var offset = 0;
+  if(document.getElementById('Loaded').checked){
+    normals = document.oninput("file").normals;
+    colors = new Uint8Array(normals.length);
+  }
   for (var ii = 0; ii < colors.length; ii += 3) {
     for (var jj = 0; jj < 3; ++jj) {
       colors[offset] = (normals[offset] * 0.5 + 0.5) * 255;
