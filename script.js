@@ -209,12 +209,12 @@ function main() {
   }
 
   function updatePosition(index) {
-    if(document.getElementById('Bezier').checked) {
-      begin[0] = translation[0];
-      begin[1] = translation[1];
-    };
     return function(event, ui) {
       translation[index] = ui.value;
+      if(document.getElementById('Bezier').checked) {
+        begin[0] = translation[0];
+        begin[1] = translation[1];
+      }
       drawScene();
     };
   }
@@ -258,6 +258,9 @@ function main() {
     // Bind the attribute/buffer set we want.
     gl.bindVertexArray(vao);
 
+    numVertices = setGeometry(gl);
+    setColors(gl);
+
     // Compute the matrix
     var aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
     var zNear = 1;
@@ -274,7 +277,7 @@ function main() {
     // AND move the world so that the camera is effectively the origin
     var viewProjectionMatrix = m4.multiply(projectionMatrix, viewMatrix);
 
-    // Draw heads in a grid
+    // Draw in a grid
     var deep = 5;
     var across = 5;
     for (var zz = 0; zz < deep; ++zz) {
@@ -339,8 +342,10 @@ function draw(matrix, viewProjectionMatrix, matrixLocation, numVertices) {
 function setGeometry(gl) {
   var positions = new Float32Array(HeadData.positions);
   var matrix = m4.scale(m4.yRotation(Math.PI), 6, 6, 6);
-  if(document.getElementById('Loaded').checked){
-    positions = new Float32Array(document.oninput("file").positions);
+  if(document.getElementById("Loaded").checked){
+    document.getElementById("Models").setAttribute("disabled", false);
+    var file = document.getElementById("Models").value;
+    positions = new Float32Array(file.positions);
     matrix = m4.scale(m4.yRotation(Math.PI), 6, 6, 6);
   }
   for (var ii = 0; ii < positions.length; ii += 3) {
@@ -349,7 +354,6 @@ function setGeometry(gl) {
     positions[ii + 1] = vector[1];
     positions[ii + 2] = vector[2];
   }
-
   gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
   return positions.length / 3;
 }
@@ -359,7 +363,8 @@ function setColors(gl) {
   var colors = new Uint8Array(normals.length);
   var offset = 0;
   if(document.getElementById('Loaded').checked){
-    normals = document.oninput("file").normals;
+    var file = document.getElementById("Models").value;
+    normals = file.normals;
     colors = new Uint8Array(normals.length);
   }
   for (var ii = 0; ii < colors.length; ii += 3) {
