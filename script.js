@@ -39,7 +39,7 @@ void main() {
 `;
 
 
-function main() {
+async function main() {
   // Get A WebGL context
   /** @type {HTMLCanvasElement} */
   var canvas = document.querySelector("#canvas");
@@ -110,6 +110,7 @@ function main() {
 
   // First let's make some variables
   // to hold the translation,
+  var time = time;
   var translation = [0, 0, 0];
   var rotation = [degToRad(0), degToRad(0), degToRad(0)];
   var scale = [1, 1, 1];
@@ -126,8 +127,11 @@ function main() {
   var cameraTarget = [0, -100, 0];
   var up = [0, 1, 0];
 
+  //time
+  var rotationSpeed = 1.2;
+  var then = 0;
 
-  drawScene();
+  drawScene(time);
 
   // Setup a ui.
   webglLessonsUI.setupSlider("#x",      {value: translation[0], slide: updatePosition(0), max: gl.canvas.width });
@@ -162,81 +166,35 @@ function main() {
       tempcameraPosition[1] = cameraPosition[2];
       cameraPosition[1] = cameraPosition[1]/zoom;
       cameraPosition[2] = cameraPosition[2]/zoom;
-      drawScene();
+      drawScene(time);
       cameraPosition[1] = tempcameraPosition[0];
       cameraPosition[2] = tempcameraPosition[1];
     };
   }
 
-  function updateCameraHeight(index) {
-    return function(event, ui) {
-      up[index] = ui.value;
-      drawScene();
-    };
+  var botao1 = document.getElementById("anim1");
+  var botao2 = document.getElementById("anim2");
+  
+  botao1.onclick() = function() {
+    AnimationOne(time);
+  }
+  
+  botao2.onclick = function() {
+    AnimationTwo();
   }
 
-  function updateTargetPosition(index) {
-    return function(event, ui) {
-      cameraTarget[index] = ui.value;
-      drawScene();
-    };
-  }
 
-  function updateCameraPosition(index) {
-    return function(event, ui) {
-      cameraPosition[index] = ui.value;
-      drawScene();
-    };
-  }
+  function AnimationOne(now) {
+    // Convert to seconds
+    now *= 0.001;
+    // Subtract the previous time from the current time
+    var deltaTime = now - then;
+    // Remember the current time for the next frame.
+    then = now;
 
-  function updateTargetAngle(event, ui) {
-    targetAngleRadians = degToRad(ui.value);
-    target[0] = Math.sin(targetAngleRadians) * targetRadius;
-    target[2] = Math.cos(targetAngleRadians) * targetRadius;
-    drawScene();
-  }
-
-  function updateTargetHeight(event, ui) {
-    target[1] = ui.value;
-    drawScene();
-  }
-
-  function updateBezier() {
-    return function(event, ui) {
-      t = ui.value;
-      drawScene();
-    };
-  }
-
-  function updatePosition(index) {
-    return function(event, ui) {
-      translation[index] = ui.value;
-      if(document.getElementById('Bezier').checked) {
-        begin[0] = translation[0];
-        begin[1] = translation[1];
-      }
-      drawScene();
-    };
-  }
-
-  function updateRotation(index) {
-    return function(event, ui) {
-      var angleInDegrees = ui.value;
-      var angleInRadians = degToRad(angleInDegrees);
-      rotation[index] = angleInRadians;
-      drawScene();
-    };
-  }
-
-  function updateScale(index) {
-    return function(event, ui) {
-      scale[index] = ui.value;
-      drawScene();
-    };
-  }
-
-  // Draw the scene.
-  function drawScene() {
+    // Every frame increase the rotation a little.
+    rotation[1] += rotationSpeed * deltaTime;
+    
     webglUtils.resizeCanvasToDisplaySize(gl.canvas);
 
     // Tell WebGL how to convert from clip space to pixels
@@ -264,7 +222,7 @@ function main() {
     // Compute the matrix
     var aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
     var zNear = 1;
-    var zFar = 2000;
+    var zFar = 5000;
     var projectionMatrix = m4.perspective(fieldOfViewRadians, aspect, zNear, zFar);
 
     // Compute the camera's matrix using look at.
@@ -277,6 +235,24 @@ function main() {
     // AND move the world so that the camera is effectively the origin
     var viewProjectionMatrix = m4.multiply(projectionMatrix, viewMatrix);
 
+    if(document.getElementById('view1').checked){
+      var cameraPosition1 = [1000, 0, 0];
+      var aspect1 = ((gl.canvas.clientWidth/2) / (gl.canvas.clientHeight/2));
+      var zFar1 = 1000;
+      var cameraMatrix1 = m4.lookAt(cameraPosition1, cameraTarget, up);
+      projectionMatrix = m4.perspective(fieldOfViewRadians, aspect1, zNear, zFar1); 
+      viewMatrix = m4.inverse(cameraMatrix1);
+      viewProjectionMatrix = m4.multiply(projectionMatrix, viewMatrix);
+    }else if(document.getElementById('view2').checked){
+      var cameraPosition1 = [-300, 500, 700];
+      var aspect1 = ((gl.canvas.clientWidth/4) / (gl.canvas.clientHeight/4));
+      var zFar1 = 2000;
+      var cameraMatrix2 = m4.lookAt(cameraPosition1, cameraTarget, up);
+      projectionMatrix = m4.perspective(fieldOfViewRadians, aspect1, zNear, zFar1);
+      viewMatrix = m4.inverse(cameraMatrix2);
+      viewProjectionMatrix = m4.multiply(projectionMatrix, viewMatrix);
+    }
+
     // Draw in a grid
     var deep = 5;
     var across = 5;
@@ -287,27 +263,163 @@ function main() {
         var u = xx / (across - 1);
         var x = (u - .5) * across * 150;
         var matrix = m4.lookAt([x, 0, z], target, up);
-        if(document.getElementById('view1').checked){
-          cameraPosition = [1000, 0, 0];
-          aspect = ((gl.canvas.clientWidth/2) / (gl.canvas.clientHeight/2));
-          zFar = 1000;
-          var cameraMatrix1 = m4.lookAt(cameraPosition, cameraTarget, up);
-          projectionMatrix = m4.perspective(fieldOfViewRadians, aspect, zNear, zFar); 
-          viewMatrix = m4.inverse(cameraMatrix1);
-          viewProjectionMatrix = m4.multiply(projectionMatrix, viewMatrix);
-        }else if(document.getElementById('view2').checked){
-          cameraPosition = [-300, 500, 700];
-          aspect = ((gl.canvas.clientWidth/4) / (gl.canvas.clientHeight/4));
-          zFar = 5000;
-          var cameraMatrix2 = m4.lookAt(cameraPosition, cameraTarget, up);
-          projectionMatrix = m4.perspective(fieldOfViewRadians, aspect, zNear, zFar);
-          viewMatrix = m4.inverse(cameraMatrix2);
-          viewProjectionMatrix = m4.multiply(projectionMatrix, viewMatrix);
-        }
         draw(matrix, viewProjectionMatrix, matrixLocation, numVertices);
       }
     }
     draw(m4.translation(target[0], target[1], target[2]), viewProjectionMatrix, matrixLocation, numVertices);
+    requestAnimationFrame(AnimationOne);
+  }
+  
+  function AnimationTwo() {
+    return function(event, ui) {
+      zoom = ui.value;
+      // Call drawScene again next frame
+      requestAnimationFrame(drawScene);
+    };
+  }
+
+  function updateCameraHeight(index) {
+    return function(event, ui) {
+      up[index] = ui.value;
+      drawScene(time);
+    };
+  }
+
+  function updateTargetPosition(index) {
+    return function(event, ui) {
+      cameraTarget[index] = ui.value;
+      drawScene(time);
+    };
+  }
+
+  function updateCameraPosition(index) {
+    return function(event, ui) {
+      cameraPosition[index] = ui.value;
+      drawScene(time);
+    };
+  }
+
+  function updateTargetAngle(event, ui) {
+    targetAngleRadians = degToRad(ui.value);
+    target[0] = Math.sin(targetAngleRadians) * targetRadius;
+    target[2] = Math.cos(targetAngleRadians) * targetRadius;
+    drawScene(time);
+  }
+
+  function updateTargetHeight(event, ui) {
+    target[1] = ui.value;
+    drawScene(time);
+  }
+
+  function updateBezier() {
+    return function(event, ui) {
+      t = ui.value;
+      drawScene(time);
+    };
+  }
+
+  function updatePosition(index) {
+    return function(event, ui) {
+      translation[index] = ui.value;
+      if(document.getElementById('Bezier').checked) {
+        begin[0] = translation[0];
+        begin[1] = translation[1];
+      }
+      drawScene(time);
+    };
+  }
+
+  function updateRotation(index) {
+    return function(event, ui) {
+      var angleInDegrees = ui.value;
+      var angleInRadians = degToRad(angleInDegrees);
+      rotation[index] = angleInRadians;
+      drawScene(time);
+    };
+  }
+
+  function updateScale(index) {
+    return function(event, ui) {
+      scale[index] = ui.value;
+      drawScene(time);
+    };
+  }
+
+  // Draw the scene.
+  function drawScene(time) {
+    webglUtils.resizeCanvasToDisplaySize(gl.canvas);
+
+    // Tell WebGL how to convert from clip space to pixels
+    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+
+    // Clear the canvas
+    gl.clearColor(0, 0, 0, 0);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+    // turn on depth testing
+    gl.enable(gl.DEPTH_TEST);
+
+    // tell webgl to cull faces
+    gl.enable(gl.CULL_FACE);
+
+    // Tell it to use our program (pair of shaders)
+    gl.useProgram(program);
+
+    // Bind the attribute/buffer set we want.
+    gl.bindVertexArray(vao);
+
+    numVertices = setGeometry(gl);
+    setColors(gl);
+    AnimationOne(time);
+    // Compute the matrix
+    var aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
+    var zNear = 1;
+    var zFar = 5000;
+    var projectionMatrix = m4.perspective(fieldOfViewRadians, aspect, zNear, zFar);
+
+    // Compute the camera's matrix using look at.
+    var cameraMatrix = m4.lookAt(cameraPosition, cameraTarget, up);
+
+    // Make a view matrix from the camera matrix.
+    var viewMatrix = m4.inverse(cameraMatrix);
+
+    // create a viewProjection matrix. This will both apply perspective
+    // AND move the world so that the camera is effectively the origin
+    var viewProjectionMatrix = m4.multiply(projectionMatrix, viewMatrix);
+
+    if(document.getElementById('view1').checked){
+      var cameraPosition1 = [1000, 0, 0];
+      var aspect1 = ((gl.canvas.clientWidth/2) / (gl.canvas.clientHeight/2));
+      var zFar1 = 1000;
+      var cameraMatrix1 = m4.lookAt(cameraPosition1, cameraTarget, up);
+      projectionMatrix = m4.perspective(fieldOfViewRadians, aspect1, zNear, zFar1); 
+      viewMatrix = m4.inverse(cameraMatrix1);
+      viewProjectionMatrix = m4.multiply(projectionMatrix, viewMatrix);
+    }else if(document.getElementById('view2').checked){
+      var cameraPosition1 = [-300, 500, 700];
+      var aspect1 = ((gl.canvas.clientWidth/4) / (gl.canvas.clientHeight/4));
+      var zFar1 = 2000;
+      var cameraMatrix2 = m4.lookAt(cameraPosition1, cameraTarget, up);
+      projectionMatrix = m4.perspective(fieldOfViewRadians, aspect1, zNear, zFar1);
+      viewMatrix = m4.inverse(cameraMatrix2);
+      viewProjectionMatrix = m4.multiply(projectionMatrix, viewMatrix);
+    }
+
+    // Draw in a grid
+    var deep = 5;
+    var across = 5;
+    for (var zz = 0; zz < deep; ++zz) {
+      var v = zz / (deep - 1);
+      var z = (v - .5) * deep * 150;
+      for (var xx = 0; xx < across; ++xx) {
+        var u = xx / (across - 1);
+        var x = (u - .5) * across * 150;
+        var matrix = m4.lookAt([x, 0, z], target, up);
+        draw(matrix, viewProjectionMatrix, matrixLocation, numVertices);
+      }
+    }
+    draw(m4.translation(target[0], target[1], target[2]), viewProjectionMatrix, matrixLocation, numVertices);
+    requestAnimationFrame(drawScene);
   }
 
 function draw(matrix, viewProjectionMatrix, matrixLocation, numVertices) {
@@ -467,10 +579,10 @@ var m4 = {
     //https://pomax.github.io/bezierinfo/
     //var x = p0x * (1-tz)**3 + (p1x+50) * 3 * (1-tz)**2 * tz + (p2x+100) * 3 * (1-tz) * tz**2 + tx * tz**3;
     //var y = p0y * (1-tz)**3 + (p1y+50) * 3 * (1-tz)**2 * tz + (p2y+100) * 3 * (1-tz) * tz**2 + ty * tz**3;
-    //var x = begin[0] * (1-tz)**3 + (begin[0]+50) * 3 * (1-tz)**2 * tz + (begin[0]+100) * 3 * (1-tz) * tz**2 + tx * tz**3;
-    //var y = begin[1] * (1-tz)**3 + (begin[1]+50) * 3 * (1-tz)**2 * tz + (begin[1]+100) * 3 * (1-tz) * tz**2 + ty * tz**3;
-    var x = (1 - tz) ** 3 * begin[0] + (1 - tz) ** 2 * 3 * tz * tz * (begin[0]+100) +  tz * tz * tz * tx;
-    var y = (1 - tz) ** 3 * begin[1] + (1 - tz) ** 2 * 3 * tz * tz * (begin[1]+100) +  tz * tz * tz * ty; // seguindo o video
+    var x = begin[0] * (1-tz)**3 + (begin[0]+50) * 3 * (1-tz)**2 * tz + (begin[0]+100) * 3 * (1-tz) * tz**2 + tx * tz**3;
+    var y = begin[1] * (1-tz)**3 + (begin[1]+50) * 3 * (1-tz)**2 * tz + (begin[1]+100) * 3 * (1-tz) * tz**2 + ty * tz**3;
+    //var x = (1 - tz) ** 3 * begin[0] + (1 - tz) ** 2 * 3 * tz * tz * (begin[0]+100) +  tz * tz * tz * tx;
+    //var y = (1 - tz) ** 3 * begin[1] + (1 - tz) ** 2 * 3 * tz * tz * (begin[1]+100) +  tz * tz * tz * ty; // seguindo o video
     return [
        1,  0,  0,  0,
        0,  1,  0,  0,
