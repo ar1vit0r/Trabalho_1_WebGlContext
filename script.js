@@ -117,6 +117,7 @@ function main() {
   var begin = [0, 0];
 
   //Cameras
+  var zoom = 10;
   var target = [0, 200, 300];
   var targetAngleRadians = 0;
   var targetRadius = 300;
@@ -138,7 +139,7 @@ function main() {
   webglLessonsUI.setupSlider("#angleZ", {value: radToDeg(rotation[2]), slide: updateRotation(2), max: 360});
   webglLessonsUI.setupSlider("#scaleX", {value: scale[0], slide: updateScale(0), min: -5, max: 5, step: 0.01, precision: 2});
   webglLessonsUI.setupSlider("#scaleY", {value: scale[1], slide: updateScale(1), min: -5, max: 5, step: 0.01, precision: 2});
-  webglLessonsUI.setupSlider("#scaleZ", {value: scale[2], slide: updateScale(2), min: -5, max: 5, step: 0.01, precision: 2});
+  webglLessonsUI.setupSlider("#scaleZ", {value: scale[2], slide: updateScale(2), min: -2, max: 2, step: 0.01, precision: 2});
   webglLessonsUI.setupSlider("#targetAngle", {value: radToDeg(targetAngleRadians), slide: updateTargetAngle, min: -360, max: 360});
   webglLessonsUI.setupSlider("#targetHeight", {value: target[1], slide: updateTargetHeight, min: 50, max: 300});
   webglLessonsUI.setupSlider("#x_Position", {value: cameraPosition[0], slide: updateCameraPosition(0), min: -1000, max: 1000});
@@ -147,9 +148,25 @@ function main() {
   webglLessonsUI.setupSlider("#cameraTargetX", {value: cameraTarget[0], slide: updateTargetPosition(0), min: -300, max: 300});
   webglLessonsUI.setupSlider("#cameraTargetY", {value: cameraTarget[1], slide: updateTargetPosition(1), min: -300, max: 300});
   webglLessonsUI.setupSlider("#cameraTargetZ", {value: cameraTarget[2], slide: updateTargetPosition(2), min: -300, max: 300});
+  webglLessonsUI.setupSlider("#Zoom", {value: zoom, slide: updateZoom(),  min: 1, max: 100, step: 0.01, precision: 2});
   //webglLessonsUI.setupSlider("#cameraHeightX", {value: up[0], slide: updateCameraHeight(0), min: -5, max: 5});
   //webglLessonsUI.setupSlider("#cameraHeightY", {value: up[1], slide: updateCameraHeight(1), min: -5, max: 5});
   //webglLessonsUI.setupSlider("#cameraHeightZ", {value: up[2], slide: updateCameraHeight(2), min: -5, max: 5});
+
+  function updateZoom() {
+    return function(event, ui) {
+      zoom = ui.value;
+      zoom = zoom/10;
+      var tempcameraPosition = [];
+      tempcameraPosition[0] = cameraPosition[1];
+      tempcameraPosition[1] = cameraPosition[2];
+      cameraPosition[1] = cameraPosition[1]/zoom;
+      cameraPosition[2] = cameraPosition[2]/zoom;
+      drawScene();
+      cameraPosition[1] = tempcameraPosition[0];
+      cameraPosition[2] = tempcameraPosition[1];
+    };
+  }
 
   function updateCameraHeight(index) {
     return function(event, ui) {
@@ -257,8 +274,6 @@ function main() {
     // AND move the world so that the camera is effectively the origin
     var viewProjectionMatrix = m4.multiply(projectionMatrix, viewMatrix);
 
-    console.log(t);
-
     // Draw heads in a grid
     var deep = 5;
     var across = 5;
@@ -286,13 +301,13 @@ function main() {
           viewMatrix = m4.inverse(cameraMatrix2);
           viewProjectionMatrix = m4.multiply(projectionMatrix, viewMatrix);
         }
-        drawHead(matrix, viewProjectionMatrix, matrixLocation, numVertices);
+        draw(matrix, viewProjectionMatrix, matrixLocation, numVertices);
       }
     }
-    drawHead(m4.translation(target[0], target[1], target[2]), viewProjectionMatrix, matrixLocation, numVertices);
+    draw(m4.translation(target[0], target[1], target[2]), viewProjectionMatrix, matrixLocation, numVertices);
   }
 
-function drawHead(matrix, viewProjectionMatrix, matrixLocation, numVertices) {
+function draw(matrix, viewProjectionMatrix, matrixLocation, numVertices) {
   if(document.getElementById('Bezier').checked) {
     matrix = m4.translate2(matrix, translation[0], translation[1], t); //bezier
   }else 
@@ -447,8 +462,10 @@ var m4 = {
     //https://pomax.github.io/bezierinfo/
     //var x = p0x * (1-tz)**3 + (p1x+50) * 3 * (1-tz)**2 * tz + (p2x+100) * 3 * (1-tz) * tz**2 + tx * tz**3;
     //var y = p0y * (1-tz)**3 + (p1y+50) * 3 * (1-tz)**2 * tz + (p2y+100) * 3 * (1-tz) * tz**2 + ty * tz**3;
-    var x = begin[0] * (1-tz)**3 + (begin[0]+50) * 3 * (1-tz)**2 * tz + (begin[0]+100) * 3 * (1-tz) * tz**2 + tx * tz**3;
-    var y = begin[1] * (1-tz)**3 + (begin[1]+50) * 3 * (1-tz)**2 * tz + (begin[1]+100) * 3 * (1-tz) * tz**2 + ty * tz**3;
+    //var x = begin[0] * (1-tz)**3 + (begin[0]+50) * 3 * (1-tz)**2 * tz + (begin[0]+100) * 3 * (1-tz) * tz**2 + tx * tz**3;
+    //var y = begin[1] * (1-tz)**3 + (begin[1]+50) * 3 * (1-tz)**2 * tz + (begin[1]+100) * 3 * (1-tz) * tz**2 + ty * tz**3;
+    var x = (1 - tz) ** 3 * begin[0] + (1 - tz) ** 2 * 3 * tz * tz * (begin[0]+100) +  tz * tz * tz * tx;
+    var y = (1 - tz) ** 3 * begin[1] + (1 - tz) ** 2 * 3 * tz * tz * (begin[1]+100) +  tz * tz * tz * ty; // seguindo o video
     return [
        1,  0,  0,  0,
        0,  1,  0,  0,
