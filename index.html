@@ -27,13 +27,7 @@
     </div>
     <br \>
     <div id="Angle">
-      <p title="Angle">Rotação em torno do:</p>
-      <input type="radio" id="eixo" name="op1" checked>
-        <label for="eixo">Eixo</label>
-      </input>
-      <input type="radio" id="ponto" name="op1">
-        <label for="ponto">Ponto</label>
-      </input>
+      <p title="Angle">Rotação</p>
       <div id="angleX"></div>
       <div id="angleY"></div>
       <div id="angleZ"></div>
@@ -59,10 +53,10 @@
     <br \>
     <div id="Animations">
       <p title="Animations">Animações</p>
-      <button id="anim1">
+      <button id="anim1" onclick="botao1_Click()">
         <label for="anim1">Animação 1</label>
       </button>
-      <button id="anim2">
+      <button id="anim2" onclick="botao2_Click()">
         <label for="anim2">Animação 2</label>
       </button>
     </div>
@@ -73,7 +67,7 @@
       <p title="Camera">Câmera</p>
       <div id="lookAt">
         <p title="lookAt">Acompanhar um modelo enquanto ele se move.</p>
-        <div id="targetAngle"></div>
+        <div id="targetPointRotate"></div>
         <div id="targetHeight"></div>
       </div>
       <div id="cameraTransforms">

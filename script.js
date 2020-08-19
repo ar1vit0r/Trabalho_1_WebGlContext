@@ -110,7 +110,6 @@ async function main() {
 
   // First let's make some variables
   // to hold the translation,
-  var time = time;
   var translation = [0, 0, 0];
   var rotation = [degToRad(0), degToRad(0), degToRad(0)];
   var scale = [1, 1, 1];
@@ -128,6 +127,8 @@ async function main() {
   var up = [0, 1, 0];
 
   //time
+  var time = new Date();
+  time = time.getHours();
   var rotationSpeed = 1.2;
   var then = 0;
 
@@ -144,7 +145,7 @@ async function main() {
   webglLessonsUI.setupSlider("#scaleX", {value: scale[0], slide: updateScale(0), min: -5, max: 5, step: 0.01, precision: 2});
   webglLessonsUI.setupSlider("#scaleY", {value: scale[1], slide: updateScale(1), min: -5, max: 5, step: 0.01, precision: 2});
   webglLessonsUI.setupSlider("#scaleZ", {value: scale[2], slide: updateScale(2), min: -2, max: 2, step: 0.01, precision: 2});
-  webglLessonsUI.setupSlider("#targetAngle", {value: radToDeg(targetAngleRadians), slide: updateTargetAngle, min: -360, max: 360});
+  webglLessonsUI.setupSlider("#targetPointRotate", {value: radToDeg(targetAngleRadians), slide: updateTargetAngle, min: -360, max: 360});
   webglLessonsUI.setupSlider("#targetHeight", {value: target[1], slide: updateTargetHeight, min: 50, max: 300});
   webglLessonsUI.setupSlider("#x_Position", {value: cameraPosition[0], slide: updateCameraPosition(0), min: -1000, max: 1000});
   webglLessonsUI.setupSlider("#y_Position", {value: cameraPosition[1], slide: updateCameraPosition(1), min: -1000, max: 1000});
@@ -172,17 +173,13 @@ async function main() {
     };
   }
 
-  var botao1 = document.getElementById("anim1");
-  var botao2 = document.getElementById("anim2");
-  
-  botao1.onclick() = function() {
+  function botao1_Click() {
     AnimationOne(time);
   }
   
-  botao2.onclick = function() {
-    AnimationTwo();
+  function botao2_Click() {
+    AnimationTwo(time);
   }
-
 
   function AnimationOne(now) {
     // Convert to seconds
@@ -235,24 +232,6 @@ async function main() {
     // AND move the world so that the camera is effectively the origin
     var viewProjectionMatrix = m4.multiply(projectionMatrix, viewMatrix);
 
-    if(document.getElementById('view1').checked){
-      var cameraPosition1 = [1000, 0, 0];
-      var aspect1 = ((gl.canvas.clientWidth/2) / (gl.canvas.clientHeight/2));
-      var zFar1 = 1000;
-      var cameraMatrix1 = m4.lookAt(cameraPosition1, cameraTarget, up);
-      projectionMatrix = m4.perspective(fieldOfViewRadians, aspect1, zNear, zFar1); 
-      viewMatrix = m4.inverse(cameraMatrix1);
-      viewProjectionMatrix = m4.multiply(projectionMatrix, viewMatrix);
-    }else if(document.getElementById('view2').checked){
-      var cameraPosition1 = [-300, 500, 700];
-      var aspect1 = ((gl.canvas.clientWidth/4) / (gl.canvas.clientHeight/4));
-      var zFar1 = 2000;
-      var cameraMatrix2 = m4.lookAt(cameraPosition1, cameraTarget, up);
-      projectionMatrix = m4.perspective(fieldOfViewRadians, aspect1, zNear, zFar1);
-      viewMatrix = m4.inverse(cameraMatrix2);
-      viewProjectionMatrix = m4.multiply(projectionMatrix, viewMatrix);
-    }
-
     // Draw in a grid
     var deep = 5;
     var across = 5;
@@ -270,12 +249,73 @@ async function main() {
     requestAnimationFrame(AnimationOne);
   }
   
-  function AnimationTwo() {
-    return function(event, ui) {
-      zoom = ui.value;
-      // Call drawScene again next frame
-      requestAnimationFrame(drawScene);
-    };
+  function AnimationTwo(now) {
+        // Convert to seconds
+        now *= 0.001;
+        // Subtract the previous time from the current time
+        var deltaTime = now - then;
+        // Remember the current time for the next frame.
+        then = now;
+    
+        // Every frame increase the rotation a little.
+        rotation[0] += rotationSpeed * deltaTime;
+        
+        webglUtils.resizeCanvasToDisplaySize(gl.canvas);
+    
+        // Tell WebGL how to convert from clip space to pixels
+        gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+    
+        // Clear the canvas
+        gl.clearColor(0, 0, 0, 0);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    
+        // turn on depth testing
+        gl.enable(gl.DEPTH_TEST);
+    
+        // tell webgl to cull faces
+        gl.enable(gl.CULL_FACE);
+    
+        // Tell it to use our program (pair of shaders)
+        gl.useProgram(program);
+    
+        // Bind the attribute/buffer set we want.
+        gl.bindVertexArray(vao);
+    
+        numVertices = setGeometry(gl);
+        setColors(gl);
+    
+        // Compute the matrix
+        var aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
+        var zNear = 1;
+        var zFar = 5000;
+        var projectionMatrix = m4.perspective(fieldOfViewRadians, aspect, zNear, zFar);
+    
+        // Compute the camera's matrix using look at.
+        var cameraMatrix = m4.lookAt(cameraPosition, cameraTarget, up);
+    
+        // Make a view matrix from the camera matrix.
+        var viewMatrix = m4.inverse(cameraMatrix);
+    
+        // create a viewProjection matrix. This will both apply perspective
+        // AND move the world so that the camera is effectively the origin
+        var viewProjectionMatrix = m4.multiply(projectionMatrix, viewMatrix);
+    
+        // Draw in a grid
+        var deep = 5;
+        var across = 5;
+        for (var zz = 0; zz < deep; ++zz) {
+          var v = zz / (deep - 1);
+          var z = (v - .5) * deep * 150;
+          for (var xx = 0; xx < across; ++xx) {
+            var u = xx / (across - 1);
+            var x = (u - .5) * across * 150;
+            var matrix = m4.lookAt([x, 0, z], target, up);
+            draw(matrix, viewProjectionMatrix, matrixLocation, numVertices);
+          }
+        }
+    draw(m4.translation(target[0], target[1], target[2]), viewProjectionMatrix, matrixLocation, numVertices);
+    // Call drawScene again next frame
+    requestAnimationFrame(AnimationTwo);
   }
 
   function updateCameraHeight(index) {
@@ -370,7 +410,7 @@ async function main() {
 
     numVertices = setGeometry(gl);
     setColors(gl);
-    AnimationOne(time);
+
     // Compute the matrix
     var aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
     var zNear = 1;
@@ -428,13 +468,10 @@ function draw(matrix, viewProjectionMatrix, matrixLocation, numVertices) {
   }else 
     matrix = m4.translate(matrix, translation[0], translation[1], translation[2]); //linear
 
-  if(document.getElementById('ponto').checked) {
-    matrix = m4.point_rotate(matrix, angle, xpoint, ypoint, zpoint);
-  }else {
-    matrix = m4.xRotate(matrix, rotation[0]);
-    matrix = m4.yRotate(matrix, rotation[1]);
-    matrix = m4.zRotate(matrix, rotation[2]);
-  }
+  matrix = m4.xRotate(matrix, rotation[0]);
+  matrix = m4.yRotate(matrix, rotation[1]);
+  matrix = m4.zRotate(matrix, rotation[2]);
+
   matrix = m4.scale(matrix, scale[0], scale[1], scale[2]);
 
   // multiply that with the viewProjecitonMatrix
