@@ -129,8 +129,8 @@ async function main() {
   //time
   var time = new Date();
   time = time.getHours();
-  var rotationSpeed = 1.2;
   var then = 0;
+  var rotationSpeed = 1.2; // 1.2 = +ou- 1/5 de volta.
 
   drawScene();
 
@@ -161,6 +161,14 @@ async function main() {
   function updateZoom() {
     return function(event, ui) {
       zoom = ui.value;
+      fieldOfViewRadians = degToRad(100)/zoom;
+      drawScene();
+    };
+  }
+
+  function updateZoom2() { // Também funciona...
+    return function(event, ui) {
+      zoom = ui.value;
       zoom = zoom/10;
       var tempcameraPosition = [];
       tempcameraPosition[0] = cameraPosition[1];
@@ -170,6 +178,15 @@ async function main() {
       drawScene();
       cameraPosition[1] = tempcameraPosition[0];
       cameraPosition[2] = tempcameraPosition[1];
+    };
+  }
+
+  function updateZoom3() { // ao contrário
+    return function(event, ui) {
+      zoom = ui.value;
+      zoom = zoom/10;
+      fieldOfViewRadians = degToRad(6)*zoom;
+      drawScene();
     };
   }
 
@@ -616,12 +633,8 @@ var m4 = {
   translation_bezier: function(tx, ty, tz) {
     //https://javascript.info/bezier-curve
     //https://pomax.github.io/bezierinfo/
-    //var x = p0x * (1-tz)**3 + (p1x+50) * 3 * (1-tz)**2 * tz + (p2x+100) * 3 * (1-tz) * tz**2 + tx * tz**3;
-    //var y = p0y * (1-tz)**3 + (p1y+50) * 3 * (1-tz)**2 * tz + (p2y+100) * 3 * (1-tz) * tz**2 + ty * tz**3;
-    var x = begin[0] * (1-tz)**3 + (begin[0]+50) * 3 * (1-tz)**2 * tz + (begin[0]+100) * 3 * (1-tz) * tz**2 + tx * tz**3;
-    var y = begin[1] * (1-tz)**3 + (begin[1]+50) * 3 * (1-tz)**2 * tz + (begin[1]+100) * 3 * (1-tz) * tz**2 + ty * tz**3;
-    //var x = (1 - tz) ** 3 * begin[0] + (1 - tz) ** 2 * 3 * tz * tz * (begin[0]+100) +  tz * tz * tz * tx;
-    //var y = (1 - tz) ** 3 * begin[1] + (1 - tz) ** 2 * 3 * tz * tz * (begin[1]+100) +  tz * tz * tz * ty; // seguindo o video
+    var x = 0 * (1-tz)**3 + (0+50) * 3 * (1-tz)**2 * tz + (0+100) * 3 * (1-tz) * tz**2 + tx * tz**3;
+    var y = 0 * (1-tz)**3 + (0+50) * 3 * (1-tz)**2 * tz + (0+100) * 3 * (1-tz) * tz**2 + ty * tz**3;
     return [
        1,  0,  0,  0,
        0,  1,  0,  0,
