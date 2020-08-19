@@ -132,7 +132,7 @@ async function main() {
   var rotationSpeed = 1.2;
   var then = 0;
 
-  drawScene(time);
+  drawScene();
 
   // Setup a ui.
   webglLessonsUI.setupSlider("#x",      {value: translation[0], slide: updatePosition(0), max: gl.canvas.width });
@@ -167,7 +167,7 @@ async function main() {
       tempcameraPosition[1] = cameraPosition[2];
       cameraPosition[1] = cameraPosition[1]/zoom;
       cameraPosition[2] = cameraPosition[2]/zoom;
-      drawScene(time);
+      drawScene();
       cameraPosition[1] = tempcameraPosition[0];
       cameraPosition[2] = tempcameraPosition[1];
     };
@@ -321,21 +321,21 @@ async function main() {
   function updateCameraHeight(index) {
     return function(event, ui) {
       up[index] = ui.value;
-      drawScene(time);
+      drawScene();
     };
   }
 
   function updateTargetPosition(index) {
     return function(event, ui) {
       cameraTarget[index] = ui.value;
-      drawScene(time);
+      drawScene();
     };
   }
 
   function updateCameraPosition(index) {
     return function(event, ui) {
       cameraPosition[index] = ui.value;
-      drawScene(time);
+      drawScene();
     };
   }
 
@@ -343,18 +343,18 @@ async function main() {
     targetAngleRadians = degToRad(ui.value);
     target[0] = Math.sin(targetAngleRadians) * targetRadius;
     target[2] = Math.cos(targetAngleRadians) * targetRadius;
-    drawScene(time);
+    drawScene();
   }
 
   function updateTargetHeight(event, ui) {
     target[1] = ui.value;
-    drawScene(time);
+    drawScene();
   }
 
   function updateBezier() {
     return function(event, ui) {
       t = ui.value;
-      drawScene(time);
+      drawScene();
     };
   }
 
@@ -365,7 +365,7 @@ async function main() {
         begin[0] = translation[0];
         begin[1] = translation[1];
       }
-      drawScene(time);
+      drawScene();
     };
   }
 
@@ -374,19 +374,19 @@ async function main() {
       var angleInDegrees = ui.value;
       var angleInRadians = degToRad(angleInDegrees);
       rotation[index] = angleInRadians;
-      drawScene(time);
+      drawScene();
     };
   }
 
   function updateScale(index) {
     return function(event, ui) {
       scale[index] = ui.value;
-      drawScene(time);
+      drawScene();
     };
   }
 
   // Draw the scene.
-  function drawScene(time) {
+  function drawScene() {
     webglUtils.resizeCanvasToDisplaySize(gl.canvas);
 
     // Tell WebGL how to convert from clip space to pixels
@@ -410,6 +410,9 @@ async function main() {
 
     numVertices = setGeometry(gl);
     setColors(gl);
+
+    //AnimationOne(time);
+    //AnimationTwo(time); não consegui fazer os botões Html excecutarem as funções
 
     // Compute the matrix
     var aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
@@ -459,7 +462,6 @@ async function main() {
       }
     }
     draw(m4.translation(target[0], target[1], target[2]), viewProjectionMatrix, matrixLocation, numVertices);
-    requestAnimationFrame(drawScene);
   }
 
 function draw(matrix, viewProjectionMatrix, matrixLocation, numVertices) {
