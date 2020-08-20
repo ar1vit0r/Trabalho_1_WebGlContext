@@ -22,6 +22,24 @@ canvas {
   display: block;
 }
 
+#canvas {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: -1;
+ }
+
+ #background {
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+  left: 0;
+  top: 0;
+  z-index: -1;
+  border: none;
+  pointer-events: none;
+}
+
 #uiCamera {
   position: absolute;
   top: 10px;

@@ -114,7 +114,6 @@ async function main() {
   var rotation = [degToRad(0), degToRad(0), degToRad(0)];
   var scale = [1, 1, 1];
   var t = 0;
-  var begin = [0, 0];
 
   //Cameras
   var zoom = 10;
@@ -158,6 +157,7 @@ async function main() {
   //webglLessonsUI.setupSlider("#cameraHeightY", {value: up[1], slide: updateCameraHeight(1), min: -5, max: 5});
   //webglLessonsUI.setupSlider("#cameraHeightZ", {value: up[2], slide: updateCameraHeight(2), min: -5, max: 5});
 
+
   function updateZoom() {
     return function(event, ui) {
       zoom = ui.value;
@@ -193,16 +193,15 @@ async function main() {
   function AnimationOne(now) {
     if((document.getElementById("anim0").checked)){
       return;
+    }else if((document.getElementById("anim2").checked)){
+      return;
     }
     // Convert to seconds
     now *= 0.001;
     // Subtract the previous time from the current time
     var deltaTime = now - then;
     // Remember the current time for the next frame.
-    then = now;
-
-    // Every frame increase the rotation a little.
-    rotation[1] += rotationSpeed * deltaTime;
+    then = now + deltaTime;
 
     // Compute the matrix
     var aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
@@ -219,6 +218,16 @@ async function main() {
     // create a viewProjection matrix. This will both apply perspective
     // AND move the world so that the camera is effectively the origin
     var viewProjectionMatrix = m4.multiply(projectionMatrix, viewMatrix);
+
+    var anim = document.getElementById("anim0");
+    if(translation[0] < 0 + 200){ 
+      translation[0] += 1;
+    }
+    if(translation[1] < 0 + 200){
+      translation[1] += 1;
+    }else if(!anim.checked){
+      anim.checked = true;
+    } 
 
     // Draw in a grid
     var deep = 5;
@@ -240,6 +249,8 @@ async function main() {
   function AnimationTwo(now) {
     if((document.getElementById("anim0").checked)){
       return;
+    }else if((document.getElementById("anim1").checked)){
+      return;
     }
     // Convert to seconds
     now *= 0.001;
@@ -247,18 +258,16 @@ async function main() {
     var deltaTime = now - then;
     // Remember the current time for the next frame.
     then = now;
-    
-    // Every frame increase the rotation a little.
-    rotation[0] += rotationSpeed * deltaTime;
-    
+
     // Compute the matrix
     var aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
     var zNear = 1;
     var zFar = 5000;
     var projectionMatrix = m4.perspective(fieldOfViewRadians, aspect, zNear, zFar);
-    
+    var cameraPosition1 = [-300, 500, 700];
+
     // Compute the camera's matrix using look at.
-    var cameraMatrix = m4.lookAt(cameraPosition, cameraTarget, up);
+    var cameraMatrix = m4.lookAt(cameraPosition1, cameraTarget, up);
     
     // Make a view matrix from the camera matrix.
     var viewMatrix = m4.inverse(cameraMatrix);
@@ -267,6 +276,23 @@ async function main() {
     // AND move the world so that the camera is effectively the origin
     var viewProjectionMatrix = m4.multiply(projectionMatrix, viewMatrix);
     
+    // Every frame increase the rotation a little.
+    rotation[0] += rotationSpeed * deltaTime;
+    var cont;
+    var anim = document.getElementById("anim0");
+    
+    if(translation[0] < 0 + 100){
+      cont++;
+      translation[0]+=1;
+    }else if(translation[1] < 0 + 300){
+      translation[1]+=1;
+    }else if(cont > 0){
+      cont--;
+      translation[1]-=1;
+    }else if(!anim.checked){
+      anim.checked = true;
+    }
+
     // Draw in a grid
     var deep = 5;
     var across = 5;
@@ -327,10 +353,6 @@ async function main() {
   function updatePosition(index) {
     return function(event, ui) {
       translation[index] = ui.value;
-      if(document.getElementById('Bezier').checked) {
-        begin[0] = translation[0];
-        begin[1] = translation[1];
-      }
       drawScene(time);
     };
   }
@@ -358,7 +380,7 @@ async function main() {
     // Subtract the previous time from the current time
     var deltaTime = now - then;
     // Remember the current time for the next frame.
-    then = now;
+    then = now + deltaTime;
 
     webglUtils.resizeCanvasToDisplaySize(gl.canvas);
 
@@ -389,6 +411,9 @@ async function main() {
       AnimationOne(time);
     }else if(document.getElementById("anim2").checked){
       AnimationTwo(time); 
+    }else{
+      translation = [0, 0, 0];
+      rotation = [degToRad(0), degToRad(0), degToRad(0)];
     }
 
     // Compute the matrix
@@ -439,6 +464,7 @@ async function main() {
       }
     }
     draw(m4.translation(target[0], target[1], target[2]), viewProjectionMatrix, matrixLocation, numVertices);
+    requestAnimationFrame(drawScene);
   }
 
 function draw(matrix, viewProjectionMatrix, matrixLocation, numVertices) {
