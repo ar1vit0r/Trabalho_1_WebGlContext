@@ -53,12 +53,17 @@
     <br \>
     <div id="Animations">
       <p title="Animations">Animações</p>
-      <button id="anim1" onclick="botao1_Click()">
+      <input type="radio" id="anim0" name="op3" checked>
+        <label for="anim0">Nenhuma.</label>
+      </input>
+      <br \>
+      <input type="radio" id="anim1" name="op3">
         <label for="anim1">Animação 1</label>
-      </button>
-      <button id="anim2" onclick="botao2_Click()">
+      </input>
+      <br \>
+      <input type="radio" id="anim2" name="op3">
         <label for="anim2">Animação 2</label>
-      </button>
+      </input>
     </div>
 </div>
 <div id="uiCamera">
@@ -66,7 +71,7 @@
     <div id="Camera">
       <p title="Camera">Câmera</p>
       <div id="lookAt">
-        <p title="lookAt">Acompanhar um modelo enquanto ele se move.</p>
+        <p title="lookAt">Acompanhar um modelo enquanto ele se move / rotação em torno de um ponto.</p>
         <div id="targetPointRotate"></div>
         <div id="targetHeight"></div>
       </div>
@@ -90,15 +95,15 @@
           <div id="cameraHeightZ"></div>
         <div id="select">
           <p title="select">Selecione uma dentre as câmeras:</p>
-          <input type="radio" id="default" name="op3" checked>
+          <input type="radio" id="default" name="op4" checked>
             <label for="default">Padrão</label>
           </input>
           <br \>
-          <input type="radio" id="view1" name="op3">
+          <input type="radio" id="view1" name="op4">
             <label for="view1">Câmera 1</label>
           </input>
           <br \>
-          <input type="radio" id="view2" name="op3">
+          <input type="radio" id="view2" name="op4">
             <label for="view2">Câmera 2</label>
           </input>
         </div>
