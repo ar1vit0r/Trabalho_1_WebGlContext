@@ -411,9 +411,6 @@ async function main() {
       AnimationOne(time);
     }else if(document.getElementById("anim2").checked){
       AnimationTwo(time); 
-    }else{
-      translation = [0, 0, 0];
-      rotation = [degToRad(0), degToRad(0), degToRad(0)];
     }
 
     // Compute the matrix
@@ -496,12 +493,6 @@ function draw(matrix, viewProjectionMatrix, matrixLocation, numVertices) {
 function setGeometry(gl) {
   var positions = new Float32Array(HeadData.positions);
   var matrix = m4.scale(m4.yRotation(Math.PI), 6, 6, 6);
-  if(document.getElementById("Loaded").checked){
-    document.getElementById("Models").setAttribute("disabled", false);
-    var file = document.getElementById("Models").value;
-    positions = new Float32Array(file.positions);
-    matrix = m4.scale(m4.yRotation(Math.PI), 6, 6, 6);
-  }
   for (var ii = 0; ii < positions.length; ii += 3) {
     var vector = m4.transformVector(matrix, [positions[ii + 0], positions[ii + 1], positions[ii + 2], 1]);
     positions[ii + 0] = vector[0];
@@ -516,11 +507,6 @@ function setColors(gl) {
   var normals = HeadData.normals;
   var colors = new Uint8Array(normals.length);
   var offset = 0;
-  if(document.getElementById('Loaded').checked){
-    var file = document.getElementById("Models").value;
-    normals = file.normals;
-    colors = new Uint8Array(normals.length);
-  }
   for (var ii = 0; ii < colors.length; ii += 3) {
     for (var jj = 0; jj < 3; ++jj) {
       colors[offset] = (normals[offset] * 0.5 + 0.5) * 255;
